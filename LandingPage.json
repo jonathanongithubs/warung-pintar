@@ -1,0 +1,122 @@
+{
+    "design_system_profile": {
+      "name": "Modern Split-Screen Auth",
+      "style_tags": ["clean", "minimalist", "corporate-green", "flat-design"],
+      "description": "A dual-pane layout featuring a visual storytelling side and a functional interaction side, utilizing a monochromatic green palette with high contrast white typography."
+    },
+    "color_palette": {
+      "primary_background": {
+        "hex": "#114B3A",
+        "description": "Deep forest green used for the main interactive container background."
+      },
+      "accent_primary": {
+        "hex": "#2ECC71",
+        "description": "Vibrant emerald green used for primary call-to-action buttons."
+      },
+      "text": {
+        "primary": "#FFFFFF",
+        "secondary": "#A0BKB5",
+        "placeholder": "rgba(255, 255, 255, 0.5)",
+        "link": "#2ECC71"
+      },
+      "components": {
+        "input_background": "rgba(0, 0, 0, 0.2)",
+        "input_text": "#FFFFFF"
+      }
+    },
+    "typography": {
+      "font_family": "Inter, system-ui, -apple-system, sans-serif",
+      "scale": {
+        "h1": {
+          "size": "2rem",
+          "weight": "700",
+          "line_height": "1.2",
+          "letter_spacing": "-0.02em"
+        },
+        "h2": {
+          "size": "1.5rem",
+          "weight": "600",
+          "line_height": "1.3"
+        },
+        "body": {
+          "size": "0.875rem",
+          "weight": "400",
+          "line_height": "1.5"
+        },
+        "label": {
+          "size": "0.75rem",
+          "weight": "500",
+          "uppercase": false
+        }
+      }
+    },
+    "layout_structure": {
+      "type": "Split Screen (50/50)",
+      "container": {
+        "display": "flex",
+        "height": "100vh",
+        "width": "100vw"
+      },
+      "left_pane": {
+        "role": "Visual / Marketing",
+        "width": "50%",
+        "background_type": "Image cover",
+        "content_alignment": "bottom-left",
+        "padding": "3rem",
+        "overlay": "linear-gradient(to top, rgba(0,0,0,0.7), transparent)"
+      },
+      "right_pane": {
+        "role": "Functional / Form",
+        "width": "50%",
+        "background_color": "primary_background",
+        "content_alignment": "center",
+        "padding": "4rem",
+        "max_width_content": "400px"
+      }
+    },
+    "ui_components": {
+      "logo": {
+        "position": "Top Center (Right Pane)",
+        "layout": "Icon left, Text right",
+        "color": "white"
+      },
+      "input_fields": {
+        "style": "filled",
+        "background_color": "input_background",
+        "border_radius": "8px",
+        "border": "none",
+        "padding": "1rem",
+        "margin_bottom": "1rem",
+        "text_color": "white",
+        "width": "100%"
+      },
+      "buttons": {
+        "primary": {
+          "background_color": "accent_primary",
+          "text_color": "#FFFFFF",
+          "border_radius": "25px",
+          "padding": "0.75rem 2rem",
+          "width": "100%",
+          "font_weight": "600",
+          "hover_effect": "brightness(110%)"
+        }
+      },
+      "links": {
+        "forgot_password": {
+          "position": "align-left above button",
+          "color": "accent_primary",
+          "size": "small"
+        },
+        "register": {
+          "position": "center below button",
+          "color": "secondary text",
+          "decoration": "none"
+        }
+      }
+    },
+    "spacing_system": {
+      "padding_standard": "1rem",
+      "gap_between_inputs": "1.25rem",
+      "gap_between_heading_and_form": "3rem"
+    }
+  }

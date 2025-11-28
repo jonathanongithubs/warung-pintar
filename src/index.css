@@ -1,0 +1,305 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  min-height: 100vh;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Hide all scrollbars globally */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Scrollbar hide utility class */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==================== KEYFRAME ANIMATIONS ==================== */
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade In Scale Animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide In from Left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In from Right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Glow Pulse Animation */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.5),
+                0 0 10px rgba(46, 204, 113, 0.3),
+                0 0 15px rgba(46, 204, 113, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.6),
+                0 0 20px rgba(46, 204, 113, 0.4),
+                0 0 30px rgba(46, 204, 113, 0.3);
+  }
+}
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ==================== ANIMATION CLASSES ==================== */
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.5s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
+/* Staggered Animation Delays */
+.delay-100 { animation-delay: 0.1s; opacity: 0; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+.delay-300 { animation-delay: 0.3s; opacity: 0; }
+.delay-400 { animation-delay: 0.4s; opacity: 0; }
+.delay-500 { animation-delay: 0.5s; opacity: 0; }
+.delay-600 { animation-delay: 0.6s; opacity: 0; }
+.delay-700 { animation-delay: 0.7s; opacity: 0; }
+.delay-800 { animation-delay: 0.8s; opacity: 0; }
+
+/* ==================== GLOW EFFECTS ==================== */
+
+/* Button Glow Effect */
+.btn-glow {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #2ECC71, #27ae60, #1abc9c);
+  opacity: 0;
+  z-index: -1;
+  filter: blur(10px);
+  transition: opacity 0.3s ease;
+}
+
+.btn-glow:hover::before {
+  opacity: 0.7;
+}
+
+.btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+}
+
+/* Link Glow Effect */
+.link-glow {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.link-glow:hover {
+  text-shadow: 0 0 10px rgba(46, 204, 113, 0.8),
+               0 0 20px rgba(46, 204, 113, 0.5),
+               0 0 30px rgba(46, 204, 113, 0.3);
+}
+
+/* Input Focus Glow */
+.input-glow {
+  transition: all 0.3s ease;
+}
+
+.input-glow:focus {
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2),
+              0 0 20px rgba(46, 204, 113, 0.15);
+}
+
+/* Card Hover Glow */
+.card-glow {
+  transition: all 0.3s ease;
+}
+
+.card-glow:hover {
+  box-shadow: 0 0 30px rgba(46, 204, 113, 0.15),
+              0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+/* Logo Float Animation */
+.logo-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ==================== EXISTING STYLES ==================== */
+
+/* Custom input placeholder styling */
+.input-placeholder::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Button hover effect */
+.btn-primary:hover {
+  filter: brightness(110%);
+}
+
+/* Image overlay gradient */
+.image-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+}
+
+/* All scrollbars are hidden globally */
+
+/* ==================== PAGE TRANSITION ==================== */
+
+.page-transition {
+  animation: fadeInScale 0.4s ease-out forwards;
+}
+
+/* Toggle Button Glow */
+.toggle-btn {
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+  transform: scale(1.02);
+}
+
+.toggle-btn.active {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Checkbox Custom Glow */
+input[type="checkbox"]:checked {
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+}
+
+/* Dropdown Item Hover */
+.dropdown-item {
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(46, 204, 113, 0.15) !important;
+  padding-left: 1.25rem;
+}
+
+/* ==================== DASHBOARD SPECIFIC ==================== */
+
+/* Dashboard page background */
+.dashboard-bg {
+  background-color: #F5F7FA;
+}
+
+/* Table row hover */
+table tbody tr {
+  transition: all 0.2s ease;
+}
+
+/* Date input styling */
+input[type="date"] {
+  color-scheme: light;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
