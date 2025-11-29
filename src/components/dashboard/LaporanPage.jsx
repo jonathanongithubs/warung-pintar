@@ -1,27 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { dashboardAPI } from '../../services/api';
 import DashboardLayout from './DashboardLayout';
 
 const LaporanPage = () => {
   const { isDarkMode } = useTheme();
-  const [dateRange, setDateRange] = useState({ start: '2025-11-01', end: '2025-11-28' });
+  const [dateRange, setDateRange] = useState({ 
+    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+  });
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ totalPendapatan: 0, totalPengeluaran: 0, labaKotor: 0, totalTransaksi: 0, marginPercentage: 0 });
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
 
-  const stats = { totalPendapatan: 15600000, totalPengeluaran: 8400000, labaKotor: 7200000, totalTransaksi: 156 };
   const formatCurrency = (amount) => new Intl.NumberFormat('id-ID').format(amount);
 
-  const monthlyData = [
-    { month: 'November 2025', pendapatan: 15600000, pengeluaran: 8400000, laba: 7200000, transaksi: 156 },
-    { month: 'Oktober 2025', pendapatan: 14200000, pengeluaran: 7800000, laba: 6400000, transaksi: 142 },
-    { month: 'September 2025', pendapatan: 12800000, pengeluaran: 7200000, laba: 5600000, transaksi: 128 },
-  ];
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
-  const topProducts = [
-    { name: 'Kroket Kentang', sold: 245, revenue: 2450000 },
-    { name: 'Risol Mayo', sold: 198, revenue: 1980000 },
-    { name: 'Pastel Ayam', sold: 167, revenue: 1670000 },
-    { name: 'Lumpia Udang', sold: 134, revenue: 1608000 },
-  ];
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      const response = await dashboardAPI.getReports({
+        start_date: dateRange.start,
+        end_date: dateRange.end,
+      });
+      const data = response.data.data;
+      
+      setStats({
+        totalPendapatan: data.stats.total_pendapatan,
+        totalPengeluaran: data.stats.total_pengeluaran,
+        labaKotor: data.stats.laba_kotor,
+        totalTransaksi: data.stats.total_transaksi,
+        marginPercentage: data.stats.margin_percentage,
+      });
+      
+      setMonthlyData(data.monthly_data);
+      setTopProducts(data.top_products);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilter = () => {
+    fetchReports();
+  };
 
   const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
@@ -45,7 +73,7 @@ const LaporanPage = () => {
               <label className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} whitespace-nowrap`}>Sampai:</label>
               <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className={`flex-1 px-3 py-2 text-xs md:text-sm rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-200 bg-white'} focus:border-emerald-500 outline-none`} />
             </div>
-            <motion.button className="px-4 md:px-6 py-2 rounded-full text-white text-xs md:text-sm font-medium whitespace-nowrap" style={{ backgroundColor: '#2ECC71' }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Filter</motion.button>
+            <motion.button onClick={handleFilter} className="px-4 md:px-6 py-2 rounded-full text-white text-xs md:text-sm font-medium whitespace-nowrap" style={{ backgroundColor: '#2ECC71' }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Filter</motion.button>
           </div>
         </motion.div>
 
@@ -120,8 +148,8 @@ const LaporanPage = () => {
             {/* Profit Summary */}
             <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }} className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 md:p-5 shadow-lg cursor-pointer">
               <h3 className="font-semibold text-white mb-2 text-sm md:text-base">Margin Laba</h3>
-              <motion.p className="text-3xl md:text-4xl font-bold text-white" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: "spring" }}>46.2%</motion.p>
-              <p className="text-white/70 text-xs mt-1">+2.4% dari bulan lalu</p>
+              <motion.p className="text-3xl md:text-4xl font-bold text-white" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: "spring" }}>{stats.marginPercentage}%</motion.p>
+              <p className="text-white/70 text-xs mt-1">Margin laba kotor</p>
               <div className="mt-4 pt-4 border-t border-white/20">
                 <div className="flex justify-between text-xs md:text-sm">
                   <span className="text-white/80">Target</span>

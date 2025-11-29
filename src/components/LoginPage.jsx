@@ -1,15 +1,56 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setError('');
+    setLoading(true);
+    
+    const result = await login(email, password);
+    
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.message);
+    }
+    
+    setLoading(false);
+  };
+
+  // Demo login function for testing
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    setError('');
+    const result = await login('test@warung.com', 'password123');
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.message);
+    }
+    setLoading(false);
+  };
+
+  // Investor demo login function
+  const handleInvestorDemoLogin = async () => {
+    setLoading(true);
+    setError('');
+    const result = await login('investor@test.com', 'password123');
+    if (result.success) {
+      navigate('/investor/dashboard');
+    } else {
+      setError(result.message);
+    }
+    setLoading(false);
   };
 
   const containerVariants = {
@@ -92,29 +133,40 @@ const LoginPage = () => {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <motion.div 
+                variants={itemVariants}
+                className="p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 text-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
+
             <motion.div variants={itemVariants}>
               <label className="text-xs text-white/70 block mb-2">Email</label>
-              <motion.input
+              <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Masukkan email anda"
-                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40"
+                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40 focus:ring-2 focus:ring-emerald-500/50"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-                whileFocus={{ boxShadow: '0 0 20px rgba(46, 204, 113, 0.3)' }}
+                required
               />
             </motion.div>
 
             <motion.div variants={itemVariants}>
               <label className="text-xs text-white/70 block mb-2">Password</label>
-              <motion.input
+              <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Masukkan Password"
-                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40"
+                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40 focus:ring-2 focus:ring-emerald-500/50"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-                whileFocus={{ boxShadow: '0 0 20px rgba(46, 204, 113, 0.3)' }}
+                required
               />
             </motion.div>
 
@@ -132,12 +184,45 @@ const LoginPage = () => {
             <motion.div variants={itemVariants} className="pt-2">
               <motion.button
                 type="submit"
-                className="w-full text-white font-semibold py-3.5 px-8 rounded-full"
+                disabled={loading}
+                className="w-full text-white font-semibold py-3.5 px-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: '#2ECC71' }}
-                whileHover={{ scale: 1.02, boxShadow: '0 10px 30px rgba(46, 204, 113, 0.4)' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={!loading ? { scale: 1.02, boxShadow: '0 10px 30px rgba(46, 204, 113, 0.4)' } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
               >
-                Masuk
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Memproses...
+                  </span>
+                ) : 'Masuk'}
+              </motion.button>
+            </motion.div>
+
+            {/* Demo Login Buttons */}
+            <motion.div variants={itemVariants} className="space-y-2">
+              <motion.button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={loading}
+                className="w-full text-emerald-400 font-medium py-2.5 px-8 rounded-full border border-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                whileHover={!loading ? { scale: 1.02, borderColor: '#2ECC71', backgroundColor: 'rgba(46, 204, 113, 0.1)' } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
+              >
+                Demo UMKM Login
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={handleInvestorDemoLogin}
+                disabled={loading}
+                className="w-full text-blue-400 font-medium py-2.5 px-8 rounded-full border border-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                whileHover={!loading ? { scale: 1.02, borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)' } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
+              >
+                Demo Investor Login
               </motion.button>
             </motion.div>
 

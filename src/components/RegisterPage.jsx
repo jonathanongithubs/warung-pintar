@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const RegisterPage = () => {
   const [userType, setUserType] = useState('umkm');
@@ -10,8 +11,11 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const kategoriOptions = [
     { value: 'warung-makan', label: 'Warung Makan' },
@@ -39,9 +43,32 @@ const RegisterPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setError('');
+    
+    if (!agreeTerms) {
+      setError('Anda harus menyetujui syarat & ketentuan');
+      return;
+    }
+    
+    setLoading(true);
+    
+    const result = await register({
+      nama_usaha: namaUsaha,
+      user_type: userType,
+      kategori: kategori || 'Umum',
+      email: email,
+      password: password,
+    });
+    
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.message);
+    }
+    
+    setLoading(false);
   };
 
   const selectedKategori = kategoriOptions.find(opt => opt.value === kategori);
@@ -123,17 +150,27 @@ const RegisterPage = () => {
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <motion.div 
+                className="p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 text-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
+            
             <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-white/70 block mb-2">Nama Usaha</label>
-                <motion.input
+                <input
                   type="text"
                   value={namaUsaha}
                   onChange={(e) => setNamaUsaha(e.target.value)}
                   placeholder="Masukkan nama usaha anda"
-                  className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40"
+                  className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40 focus:ring-2 focus:ring-emerald-500/50"
                   style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-                  whileFocus={{ boxShadow: '0 0 20px rgba(46, 204, 113, 0.3)' }}
+                  required
                 />
               </div>
               
@@ -202,27 +239,28 @@ const RegisterPage = () => {
 
             <motion.div variants={itemVariants} className={isDropdownOpen ? 'relative z-0' : ''}>
               <label className="text-xs text-white/70 block mb-2">Email</label>
-              <motion.input
+              <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Masukkan email anda"
-                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40"
+                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40 focus:ring-2 focus:ring-emerald-500/50"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-                whileFocus={{ boxShadow: '0 0 20px rgba(46, 204, 113, 0.3)' }}
+                required
               />
             </motion.div>
 
             <motion.div variants={itemVariants} className={isDropdownOpen ? 'relative z-0' : ''}>
               <label className="text-xs text-white/70 block mb-2">Password</label>
-              <motion.input
+              <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Buat password untuk usaha anda"
-                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40"
+                className="w-full text-white text-sm px-4 py-3.5 rounded-lg border-none outline-none transition-all placeholder:text-white/40 focus:ring-2 focus:ring-emerald-500/50"
                 style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
-                whileFocus={{ boxShadow: '0 0 20px rgba(46, 204, 113, 0.3)' }}
+                required
+                minLength={8}
               />
             </motion.div>
 
@@ -241,13 +279,22 @@ const RegisterPage = () => {
 
             <motion.div variants={itemVariants} className="pt-4">
               <motion.button 
-                type="submit" 
-                className="w-full text-white font-semibold py-3.5 px-8 rounded-full" 
+                type="submit"
+                disabled={loading}
+                className="w-full text-white font-semibold py-3.5 px-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed" 
                 style={{ backgroundColor: '#2ECC71' }}
-                whileHover={{ scale: 1.02, boxShadow: '0 10px 30px rgba(46, 204, 113, 0.4)' }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={!loading ? { scale: 1.02, boxShadow: '0 10px 30px rgba(46, 204, 113, 0.4)' } : {}}
+                whileTap={!loading ? { scale: 0.98 } : {}}
               >
-                Daftar
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Memproses...
+                  </span>
+                ) : 'Daftar'}
               </motion.button>
             </motion.div>
 

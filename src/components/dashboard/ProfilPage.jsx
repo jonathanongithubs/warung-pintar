@@ -1,18 +1,88 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 
 const ProfilPage = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const { user, updateProfile, changePassword, logout } = useAuth();
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState({
-    namaUsaha: 'Kroketin', email: 'umkm@gmail.com', noTelp: '081234567890', alamat: 'Jl. Contoh No. 123, Jakarta', kategori: 'Makanan'
+    namaUsaha: '', email: '', noTelp: '', alamat: '', kategori: ''
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '', newPassword: '', confirmPassword: ''
   });
   const [notifSettings, setNotifSettings] = useState({ emailNotif: true, stokRendah: true, laporanMingguan: false, promoTips: true });
   const [activeTab, setActiveTab] = useState('profil');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  const handleProfileSave = (e) => { e.preventDefault(); alert('Profil berhasil disimpan!'); };
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        namaUsaha: user.nama_usaha || '',
+        email: user.email || '',
+        noTelp: user.phone || '',
+        alamat: user.alamat || '',
+        kategori: user.kategori || '',
+      });
+    }
+  }, [user]);
+
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+    
+    const result = await updateProfile({
+      nama_usaha: profileData.namaUsaha,
+      kategori: profileData.kategori,
+      phone: profileData.noTelp,
+      alamat: profileData.alamat,
+    });
+    
+    if (result.success) {
+      setMessage({ type: 'success', text: 'Profil berhasil disimpan!' });
+    } else {
+      setMessage({ type: 'error', text: result.message });
+    }
+    setLoading(false);
+  };
+  
   const handleNotifSave = () => { alert('Pengaturan notifikasi berhasil disimpan!'); };
+  
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setMessage({ type: 'error', text: 'Password baru tidak cocok!' });
+      return;
+    }
+    
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+    
+    const result = await changePassword(
+      passwordData.currentPassword,
+      passwordData.newPassword,
+      passwordData.confirmPassword
+    );
+    
+    if (result.success) {
+      setMessage({ type: 'success', text: 'Password berhasil diubah!' });
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } else {
+      setMessage({ type: 'error', text: result.message });
+    }
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   const accountStats = { totalTransaksi: 156, produkTerdaftar: 24, hariAktif: 45, ratingUsaha: 4.8 };
 
@@ -98,6 +168,11 @@ const ProfilPage = () => {
             {activeTab === 'profil' && (
               <motion.div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-4 md:p-6 shadow-sm`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
                 <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4 md:mb-6 text-sm md:text-base`}>Informasi Profil Usaha</h3>
+                {message.text && activeTab === 'profil' && (
+                  <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
+                    {message.text}
+                  </div>
+                )}
                 <form onSubmit={handleProfileSave} className="space-y-4 md:space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                     {[{ label: 'Nama Usaha', key: 'namaUsaha', type: 'text' }, { label: 'Kategori Usaha', key: 'kategori', type: 'text' }, { label: 'Email', key: 'email', type: 'email' }, { label: 'No. Telepon', key: 'noTelp', type: 'tel' }].map((field, index) => (
@@ -148,25 +223,30 @@ const ProfilPage = () => {
             {activeTab === 'keamanan' && (
               <motion.div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-4 md:p-6 shadow-sm`} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
                 <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4 md:mb-6 text-sm md:text-base`}>Keamanan Akun</h3>
-                <div className="space-y-4 md:space-y-5">
+                {message.text && activeTab === 'keamanan' && (
+                  <div className={`mb-4 p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/50' : 'bg-red-500/20 text-red-400 border border-red-500/50'}`}>
+                    {message.text}
+                  </div>
+                )}
+                <form onSubmit={handlePasswordChange} className="space-y-4 md:space-y-5">
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                     <label className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} block mb-1.5 md:mb-2`}>Password Lama</label>
-                    <input type="password" placeholder="Masukkan password lama" className={`w-full text-xs md:text-sm px-3 md:px-4 py-2.5 md:py-3 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500' : 'border-gray-200 bg-white text-gray-800'} focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all`} />
+                    <input type="password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})} placeholder="Masukkan password lama" className={`w-full text-xs md:text-sm px-3 md:px-4 py-2.5 md:py-3 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500' : 'border-gray-200 bg-white text-gray-800'} focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all`} required />
                   </motion.div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                       <label className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} block mb-1.5 md:mb-2`}>Password Baru</label>
-                      <input type="password" placeholder="Masukkan password baru" className={`w-full text-xs md:text-sm px-3 md:px-4 py-2.5 md:py-3 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500' : 'border-gray-200 bg-white text-gray-800'} focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all`} />
+                      <input type="password" value={passwordData.newPassword} onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})} placeholder="Masukkan password baru" className={`w-full text-xs md:text-sm px-3 md:px-4 py-2.5 md:py-3 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500' : 'border-gray-200 bg-white text-gray-800'} focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all`} required minLength={8} />
                     </motion.div>
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                       <label className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} block mb-1.5 md:mb-2`}>Konfirmasi Password</label>
-                      <input type="password" placeholder="Konfirmasi password baru" className={`w-full text-xs md:text-sm px-3 md:px-4 py-2.5 md:py-3 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500' : 'border-gray-200 bg-white text-gray-800'} focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all`} />
+                      <input type="password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})} placeholder="Konfirmasi password baru" className={`w-full text-xs md:text-sm px-3 md:px-4 py-2.5 md:py-3 rounded-lg border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-500' : 'border-gray-200 bg-white text-gray-800'} focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none transition-all`} required minLength={8} />
                     </motion.div>
                   </div>
                   <motion.div className="pt-2 md:pt-4" whileHover={{ scale: 1.02 }}>
-                    <motion.button className="w-full md:w-auto px-6 md:px-8 py-2.5 md:py-3 rounded-full text-white text-xs md:text-sm font-semibold transition-all" style={{ backgroundColor: '#2ECC71' }} whileHover={{ boxShadow: "0 10px 30px rgba(46, 204, 113, 0.4)" }} whileTap={{ scale: 0.95 }}>Ubah Password</motion.button>
+                    <motion.button type="submit" disabled={loading} className="w-full md:w-auto px-6 md:px-8 py-2.5 md:py-3 rounded-full text-white text-xs md:text-sm font-semibold transition-all disabled:opacity-50" style={{ backgroundColor: '#2ECC71' }} whileHover={{ boxShadow: "0 10px 30px rgba(46, 204, 113, 0.4)" }} whileTap={{ scale: 0.95 }}>{loading ? 'Memproses...' : 'Ubah Password'}</motion.button>
                   </motion.div>
-                </div>
+                </form>
                 <motion.div className={`mt-6 md:mt-8 pt-4 md:pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
                   <h4 className="text-xs md:text-sm font-semibold text-red-600 mb-3 md:mb-4">Zona Berbahaya</h4>
                   <div className={`p-3 md:p-4 ${isDarkMode ? 'bg-red-900/20 border-red-800' : 'bg-red-50 border-red-100'} rounded-lg border`}>

@@ -2,20 +2,24 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { dashboardAPI } from '../../services/api';
 import DashboardLayout from './DashboardLayout';
 
 const DashboardPage = () => {
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [stats] = useState({
-    transaksiHariIni: 1200000,
-    omset: 1200000,
-    labaKotor: 1200000,
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    transaksiHariIni: 0,
+    omset: 0,
+    labaKotor: 0,
     omzetTarget: 10000000,
-    omzetPercentage: 10
+    omzetPercentage: 0
   });
 
-  const [chartData] = useState([
+  const [chartData, setChartData] = useState([
     { month: 'Jan', value: 30 },
     { month: 'Feb', value: 45 },
     { month: 'Mar', value: 35 },
@@ -24,6 +28,12 @@ const DashboardPage = () => {
     { month: 'Jun', value: 65 },
     { month: 'Jul', value: 55 },
   ]);
+
+  const [monthlySummary, setMonthlySummary] = useState({
+    totalTransaksi: 0,
+    produkTerjual: 0,
+    pelangganBaru: 0,
+  });
 
   const [tips] = useState([
     { title: 'Tingkatkan Penjualan', desc: 'Tawarkan paket bundling untuk produk populer.' },
@@ -34,6 +44,43 @@ const DashboardPage = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await dashboardAPI.getStats();
+      const data = response.data.data;
+      
+      setStats({
+        transaksiHariIni: data.stats.transaksi_hari_ini,
+        omset: data.stats.omset,
+        labaKotor: data.stats.laba_kotor,
+        omzetTarget: data.stats.omzet_target,
+        omzetPercentage: data.stats.omzet_percentage,
+      });
+      
+      // Normalize chart data values for display
+      const maxValue = Math.max(...data.chart_data.map(d => d.value), 1);
+      setChartData(data.chart_data.map(d => ({
+        month: d.month,
+        value: maxValue > 0 ? (d.value / maxValue) * 100 : 0,
+        actualValue: d.value,
+      })));
+      
+      setMonthlySummary({
+        totalTransaksi: data.monthly_summary.total_transaksi,
+        produkTerjual: data.monthly_summary.produk_terjual,
+        pelangganBaru: data.monthly_summary.pelanggan_baru,
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
@@ -47,11 +94,22 @@ const DashboardPage = () => {
 
   const generateChartPath = () => {
     const width = 600, height = 200, padding = 40;
-    const maxValue = Math.max(...chartData.map(d => d.value));
+    
+    // Return empty paths if no data
+    if (!chartData || chartData.length === 0) {
+      return { linePath: '', areaPath: '', points: [] };
+    }
+    
+    const maxValue = Math.max(...chartData.map(d => d.value), 1);
     const points = chartData.map((d, i) => ({
-      x: padding + (i * (width - 2 * padding)) / (chartData.length - 1),
+      x: padding + (i * (width - 2 * padding)) / Math.max(chartData.length - 1, 1),
       y: height - padding - (d.value / maxValue) * (height - 2 * padding)
     }));
+    
+    if (points.length === 0) {
+      return { linePath: '', areaPath: '', points: [] };
+    }
+    
     const linePath = points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(' ');
     const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`;
     return { linePath, areaPath, points };
@@ -68,7 +126,7 @@ const DashboardPage = () => {
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
         {/* Greeting */}
         <motion.div variants={itemVariants} className="mb-4 md:mb-6">
-          <h2 className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{getGreeting()}, kroketin!</h2>
+          <h2 className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{getGreeting()}, {user?.nama_usaha || 'User'}!</h2>
           <p className={`text-xs md:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ringkasan operasional hari ini dan performa bisnis Anda.</p>
         </motion.div>
 
@@ -212,9 +270,9 @@ const DashboardPage = () => {
               <h3 className="font-semibold text-white mb-3 text-sm md:text-base">Ringkasan Bulan Ini</h3>
               <div className="space-y-2 md:space-y-3">
                 {[
-                  { label: 'Total Transaksi', value: '156' },
-                  { label: 'Produk Terjual', value: '423' },
-                  { label: 'Pelanggan Baru', value: '28' },
+                  { label: 'Total Transaksi', value: monthlySummary.totalTransaksi.toString() },
+                  { label: 'Produk Terjual', value: monthlySummary.produkTerjual.toString() },
+                  { label: 'Pelanggan Baru', value: monthlySummary.pelangganBaru.toString() },
                 ].map((item, i) => (
                   <motion.div 
                     key={i}

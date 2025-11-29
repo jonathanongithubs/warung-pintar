@@ -2,14 +2,23 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import ChatBot from './ChatBot';
 
-const DashboardLayout = ({ children, user = { name: 'Kroketin', email: 'umkm@gmail.com', kategori: 'Makanan', role: 'UMKM' } }) => {
+const DashboardLayout = ({ children }) => {
   const { isDarkMode } = useTheme();
+  const { user: authUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const user = {
+    name: authUser?.nama_usaha || 'User',
+    email: authUser?.email || '',
+    kategori: authUser?.kategori || 'UMKM',
+    role: authUser?.user_type?.toUpperCase() || 'UMKM',
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -48,7 +57,10 @@ const DashboardLayout = ({ children, user = { name: 'Kroketin', email: 'umkm@gma
     }
   };
 
-  const handleLogout = () => navigate('/');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
   const isProfilActive = location.pathname === '/profil';
 
   return (

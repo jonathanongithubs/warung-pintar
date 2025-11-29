@@ -1,18 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { productsAPI } from '../../services/api';
 import DashboardLayout from './DashboardLayout';
 
 const ProdukPage = () => {
   const { isDarkMode } = useTheme();
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Kroket Kentang', price: 10000, stock: 50, category: 'Gorengan' },
-    { id: 2, name: 'Risol Mayo', price: 10000, stock: 35, category: 'Gorengan' },
-    { id: 3, name: 'Pastel Ayam', price: 10000, stock: 8, category: 'Gorengan' },
-    { id: 4, name: 'Lumpia Udang', price: 12000, stock: 25, category: 'Gorengan' },
-    { id: 5, name: 'Cireng Isi', price: 4000, stock: 60, category: 'Gorengan' },
-    { id: 6, name: 'Tahu Isi', price: 3000, stock: 45, category: 'Gorengan' },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total_products: 0, low_stock_products: 0, total_value: 0 });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,26 +19,99 @@ const ProdukPage = () => {
   const [restockAmount, setRestockAmount] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const formatCurrency = (amount) => new Intl.NumberFormat('id-ID').format(amount);
-  const totalProducts = products.length;
-  const lowStockProducts = products.filter(p => p.stock < 15).length;
-  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
-  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  const handleAddProduct = (e) => {
+  const fetchProducts = async () => {
+    try {
+      const response = await productsAPI.getAll(searchTerm);
+      setProducts(response.data.data.products);
+      setStats(response.data.data.stats);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const formatCurrency = (amount) => new Intl.NumberFormat('id-ID').format(amount);
+  const totalProducts = stats.total_products;
+  const lowStockProducts = stats.low_stock_products;
+  const totalValue = stats.total_value;
+  const filteredProducts = products;
+
+  const handleAddProduct = async (e) => {
     e.preventDefault();
-    const product = { id: Date.now(), name: newProduct.name, price: Number(newProduct.price), stock: Number(newProduct.stock), category: newProduct.category };
-    setProducts([...products, product]);
-    setNewProduct({ name: '', price: '', stock: '', category: 'Gorengan' });
-    setShowAddModal(false);
+    try {
+      await productsAPI.create({
+        name: newProduct.name,
+        price: Number(newProduct.price),
+        stock: Number(newProduct.stock),
+        category: newProduct.category,
+      });
+      setNewProduct({ name: '', price: '', stock: '', category: 'Gorengan' });
+      setShowAddModal(false);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('Gagal menambahkan produk');
+    }
   };
 
   const handleEditClick = (product) => { setEditProduct({ ...product }); setShowEditModal(true); };
-  const handleEditSave = (e) => { e.preventDefault(); setProducts(products.map(p => p.id === editProduct.id ? { ...editProduct, price: Number(editProduct.price), stock: Number(editProduct.stock) } : p)); setShowEditModal(false); };
+  
+  const handleEditSave = async (e) => {
+    e.preventDefault();
+    try {
+      await productsAPI.update(editProduct.id, {
+        name: editProduct.name,
+        price: Number(editProduct.price),
+        stock: Number(editProduct.stock),
+        category: editProduct.category,
+      });
+      setShowEditModal(false);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('Gagal memperbarui produk');
+    }
+  };
+  
   const handleDeleteClick = (product) => { setSelectedProduct(product); setShowDeleteModal(true); };
-  const handleDeleteConfirm = () => { setProducts(products.filter(p => p.id !== selectedProduct.id)); setShowDeleteModal(false); setSelectedProduct(null); };
+  
+  const handleDeleteConfirm = async () => {
+    try {
+      await productsAPI.delete(selectedProduct.id);
+      setShowDeleteModal(false);
+      setSelectedProduct(null);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Gagal menghapus produk');
+    }
+  };
+  
   const handleRestockClick = (product) => { setSelectedProduct(product); setRestockAmount(10); setShowRestockModal(true); };
-  const handleRestockConfirm = () => { setProducts(products.map(p => p.id === selectedProduct.id ? { ...p, stock: p.stock + restockAmount } : p)); setShowRestockModal(false); setSelectedProduct(null); };
+  
+  const handleRestockConfirm = async () => {
+    try {
+      await productsAPI.restock(selectedProduct.id, restockAmount);
+      setShowRestockModal(false);
+      setSelectedProduct(null);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error restocking product:', error);
+      alert('Gagal restock produk');
+    }
+  };
 
   const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
