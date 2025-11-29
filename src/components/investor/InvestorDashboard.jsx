@@ -1,30 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import InvestorLayout from './InvestorLayout';
 
 const InvestorDashboard = () => {
   const { isDarkMode } = useTheme();
   const { user } = useAuth();
-  const [activeFilter, setActiveFilter] = useState('30days');
-  const [stats, setStats] = useState({
-    totalInvestment: 15000000,
-    portfolioRevenue: 2500000,
-    portfolioNetProfit: 750000,
-    avgProfitMargin: 19.9,
-    investmentGrowth: 15.2,
-    revenueGrowth: 18.1,
-    profitGrowth: 12.4,
-    marginGrowth: 11.5,
+  const navigate = useNavigate();
+  const [activeFilter, setActiveFilter] = useState('30hari');
+  const [stats] = useState({
+    totalInvestasi: 15000000,
+    pendapatanPortofolio: 2500000,
+    labaPortofolio: 750000,
+    rataMargin: 19.9,
+    pertumbuhanInvestasi: 15.2,
+    pertumbuhanPendapatan: 18.1,
+    pertumbuhanLaba: 12.4,
+    pertumbuhanMargin: 11.5,
   });
   const [chartData] = useState([
-    { month: 'Jun', expenses: 20, profit: 35, revenue: 55 },
-    { month: 'Jul', expenses: 25, profit: 40, revenue: 65 },
-    { month: 'Aug', expenses: 22, profit: 38, revenue: 60 },
-    { month: 'Sep', expenses: 30, profit: 45, revenue: 75 },
-    { month: 'Oct', expenses: 28, profit: 50, revenue: 78 },
-    { month: 'Nov', expenses: 35, profit: 55, revenue: 90 },
+    { bulan: 'Jun', pengeluaran: 20, laba: 35, pendapatan: 55 },
+    { bulan: 'Jul', pengeluaran: 25, laba: 40, pendapatan: 65 },
+    { bulan: 'Agu', pengeluaran: 22, laba: 38, pendapatan: 60 },
+    { bulan: 'Sep', pengeluaran: 30, laba: 45, pendapatan: 75 },
+    { bulan: 'Okt', pengeluaran: 28, laba: 50, pendapatan: 78 },
+    { bulan: 'Nov', pengeluaran: 35, laba: 55, pendapatan: 90 },
   ]);
   const [categoryData] = useState([
     { name: 'Makanan', percentage: 45, color: '#10B981' },
@@ -33,16 +35,16 @@ const InvestorDashboard = () => {
     { name: 'Jasa', percentage: 10, color: '#8B5CF6' },
   ]);
   const [investments] = useState([
-    { id: 1, name: 'Warung Makan Barokah', revenue: 5000000, expenses: 3500000, netProfit: 1500000, status: 'active' },
-    { id: 2, name: 'Kedai Kopi Nusantara', revenue: 3500000, expenses: 2100000, netProfit: 1400000, status: 'active' },
-    { id: 3, name: 'Toko Kelontong Jaya', revenue: 2800000, expenses: 2000000, netProfit: 800000, status: 'warning' },
+    { id: 1, name: 'Warung Makan Barokah', pendapatan: 5000000, pengeluaran: 3500000, laba: 1500000, status: 'aktif' },
+    { id: 2, name: 'Kedai Kopi Nusantara', pendapatan: 3500000, pengeluaran: 2100000, laba: 1400000, status: 'aktif' },
+    { id: 3, name: 'Toko Kelontong Jaya', pendapatan: 2800000, pengeluaran: 2000000, laba: 800000, status: 'perhatian' },
   ]);
 
   const filterOptions = [
-    { key: '30days', label: 'Last 30 Days' },
-    { key: 'quarter', label: 'This Quarter' },
-    { key: '6months', label: 'Last 6 Months' },
-    { key: 'all', label: 'All Time' },
+    { key: '30hari', label: '30 Hari Terakhir' },
+    { key: 'kuartal', label: 'Kuartal Ini' },
+    { key: '6bulan', label: '6 Bulan Terakhir' },
+    { key: 'semua', label: 'Semua Waktu' },
   ];
 
   const formatCurrency = (amount) => new Intl.NumberFormat('id-ID').format(amount);
@@ -59,9 +61,9 @@ const InvestorDashboard = () => {
 
   const statCards = [
     { 
-      label: 'Total Investment', 
-      value: stats.totalInvestment, 
-      growth: stats.investmentGrowth, 
+      label: 'Total Investasi', 
+      value: stats.totalInvestasi, 
+      growth: stats.pertumbuhanInvestasi, 
       color: 'blue',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,9 +72,9 @@ const InvestorDashboard = () => {
       ),
     },
     { 
-      label: 'Portfolio Revenue', 
-      value: stats.portfolioRevenue, 
-      growth: stats.revenueGrowth, 
+      label: 'Pendapatan Portofolio', 
+      value: stats.pendapatanPortofolio, 
+      growth: stats.pertumbuhanPendapatan, 
       color: 'emerald',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,9 +83,9 @@ const InvestorDashboard = () => {
       ),
     },
     { 
-      label: 'Portfolio Net Profit', 
-      value: stats.portfolioNetProfit, 
-      growth: stats.profitGrowth, 
+      label: 'Laba Bersih Portofolio', 
+      value: stats.labaPortofolio, 
+      growth: stats.pertumbuhanLaba, 
       color: 'red',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,9 +94,9 @@ const InvestorDashboard = () => {
       ),
     },
     { 
-      label: 'Avg. Profit Margin', 
-      value: stats.avgProfitMargin, 
-      growth: stats.marginGrowth, 
+      label: 'Rata-rata Margin', 
+      value: stats.rataMargin, 
+      growth: stats.pertumbuhanMargin, 
       color: 'purple',
       isPercentage: true,
       icon: (
@@ -115,6 +117,22 @@ const InvestorDashboard = () => {
     return colors[color];
   };
 
+  const handleExportCSV = () => {
+    const headers = ['Nama UMKM', 'Pendapatan', 'Pengeluaran', 'Laba Bersih', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...investments.map(inv => 
+        `"${inv.name}",${inv.pendapatan},${inv.pengeluaran},${inv.laba},${inv.status}`
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `investasi_umkm_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   const barWidth = 60;
   const chartWidth = chartData.length * (barWidth + 40);
   const chartHeight = 200;
@@ -125,10 +143,10 @@ const InvestorDashboard = () => {
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <div>
             <h2 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Investor Dashboard
+              Dasbor Investor
             </h2>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-              Monitor your investment portfolio
+              Pantau portofolio investasi Anda
             </p>
           </div>
           
@@ -160,9 +178,10 @@ const InvestorDashboard = () => {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-5 shadow-sm border-l-4 ${colorClasses.border} relative overflow-hidden group`}
+                className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-5 shadow-sm border-l-4 ${colorClasses.border} relative overflow-hidden group cursor-pointer`}
                 whileHover={{ scale: 1.02, y: -5 }}
                 transition={{ duration: 0.3 }}
+                onClick={() => navigate('/investor/laporan')}
               >
                 <motion.div 
                   className={`absolute inset-0 ${colorClasses.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
@@ -200,7 +219,7 @@ const InvestorDashboard = () => {
                     >
                       {stat.growth >= 0 ? '+' : ''}{stat.growth}%
                     </motion.span>
-                    <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>vs last period</span>
+                    <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>dari periode lalu</span>
                   </div>
                 </div>
               </motion.div>
@@ -214,7 +233,7 @@ const InvestorDashboard = () => {
             className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 shadow-sm`}
           >
             <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4`}>
-              Portfolio Performance
+              Performa Portofolio
             </h3>
             
             <div className="h-64 overflow-x-auto">
@@ -233,9 +252,9 @@ const InvestorDashboard = () => {
                 
                 {chartData.map((d, i) => {
                   const x = 60 + i * (barWidth + 40);
-                  const expenseHeight = (d.expenses / 100) * chartHeight;
-                  const profitHeight = (d.profit / 100) * chartHeight;
-                  const revenueHeight = (d.revenue / 100) * chartHeight;
+                  const expenseHeight = (d.pengeluaran / 100) * chartHeight;
+                  const profitHeight = (d.laba / 100) * chartHeight;
+                  const revenueHeight = (d.pendapatan / 100) * chartHeight;
                   
                   return (
                     <g key={i}>
@@ -282,7 +301,7 @@ const InvestorDashboard = () => {
                         className="text-xs" 
                         fill={isDarkMode ? '#9CA3AF' : '#6B7280'}
                       >
-                        {d.month}
+                        {d.bulan}
                       </text>
                     </g>
                   );
@@ -292,9 +311,9 @@ const InvestorDashboard = () => {
             
             <div className="flex items-center justify-center gap-6 mt-4">
               {[
-                { label: 'Expenses', color: '#EF4444' },
-                { label: 'Profit', color: '#22C55E' },
-                { label: 'Revenue', color: '#10B981' },
+                { label: 'Pengeluaran', color: '#EF4444' },
+                { label: 'Laba', color: '#22C55E' },
+                { label: 'Pendapatan', color: '#10B981' },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }} />
@@ -309,7 +328,7 @@ const InvestorDashboard = () => {
             className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 shadow-sm`}
           >
             <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4`}>
-              Investment by Category
+              Investasi per Kategori
             </h3>
             
             <div className="flex items-center justify-center h-52">
@@ -340,8 +359,9 @@ const InvestorDashboard = () => {
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: index * 0.15, duration: 0.5 }}
-                      style={{ transformOrigin: 'center' }}
+                      style={{ transformOrigin: 'center', cursor: 'pointer' }}
                       whileHover={{ scale: 1.05 }}
+                      onClick={() => navigate('/investor/portofolio')}
                     />
                   );
                   
@@ -362,11 +382,12 @@ const InvestorDashboard = () => {
               {categoryData.map((category, index) => (
                 <motion.div 
                   key={category.name}
-                  className={`flex items-center gap-2 p-2 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}
+                  className={`flex items-center gap-2 p-2 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'} cursor-pointer`}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
+                  onClick={() => navigate('/investor/temukan')}
                 >
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }} />
                   <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{category.name}</span>
@@ -383,14 +404,15 @@ const InvestorDashboard = () => {
         >
           <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              All Invested MSMEs
+              Semua UMKM yang Diinvestasi
             </h3>
             <motion.button 
+              onClick={handleExportCSV}
               className="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Export CSV
+              Ekspor CSV
             </motion.button>
           </div>
           
@@ -398,10 +420,10 @@ const InvestorDashboard = () => {
             <table className="w-full">
               <thead className={isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}>
                 <tr>
-                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>UMKM Name</th>
-                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Revenue</th>
-                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Expenses</th>
-                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Net Profit</th>
+                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Nama UMKM</th>
+                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Pendapatan</th>
+                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Pengeluaran</th>
+                  <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Laba Bersih</th>
                   <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Status</th>
                 </tr>
               </thead>
@@ -412,19 +434,20 @@ const InvestorDashboard = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}
+                    className={`${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors cursor-pointer`}
+                    onClick={() => navigate('/investor/portofolio')}
                   >
                     <td className={`px-6 py-4 ${isDarkMode ? 'text-white' : 'text-gray-800'} font-medium`}>{inv.name}</td>
-                    <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Rp {formatCurrency(inv.revenue)}</td>
-                    <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Rp {formatCurrency(inv.expenses)}</td>
-                    <td className={`px-6 py-4 text-emerald-500 font-medium`}>Rp {formatCurrency(inv.netProfit)}</td>
+                    <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Rp {formatCurrency(inv.pendapatan)}</td>
+                    <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Rp {formatCurrency(inv.pengeluaran)}</td>
+                    <td className={`px-6 py-4 text-emerald-500 font-medium`}>Rp {formatCurrency(inv.laba)}</td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        inv.status === 'active' 
+                        inv.status === 'aktif' 
                           ? 'bg-emerald-100 text-emerald-600' 
                           : 'bg-yellow-100 text-yellow-600'
                       }`}>
-                        {inv.status === 'active' ? 'Active' : 'Warning'}
+                        {inv.status === 'aktif' ? 'Aktif' : 'Perhatian'}
                       </span>
                     </td>
                   </motion.tr>
@@ -435,8 +458,16 @@ const InvestorDashboard = () => {
                         <svg className="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        <p className="font-medium">No investments yet</p>
-                        <p className="text-sm mt-1">Start investing to see your portfolio here</p>
+                        <p className="font-medium">Belum ada investasi</p>
+                        <p className="text-sm mt-1">Mulai berinvestasi untuk melihat portofolio Anda</p>
+                        <motion.button
+                          onClick={() => navigate('/investor/temukan')}
+                          className="mt-4 px-6 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Temukan UMKM
+                        </motion.button>
                       </div>
                     </td>
                   </tr>
@@ -451,4 +482,3 @@ const InvestorDashboard = () => {
 };
 
 export default InvestorDashboard;
-

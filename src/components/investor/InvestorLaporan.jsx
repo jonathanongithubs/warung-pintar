@@ -43,16 +43,16 @@ const InvestorLaporan = () => {
   };
 
   const reportTabs = [
-    { key: 'summary', label: 'Summary' },
-    { key: 'returns', label: 'Returns' },
-    { key: 'breakdown', label: 'Breakdown' },
+    { key: 'summary', label: 'Ringkasan' },
+    { key: 'returns', label: 'Return' },
+    { key: 'breakdown', label: 'Rincian' },
   ];
 
   const statCards = [
-    { label: 'Total Returns', value: stats.totalReturns, prefix: 'Rp ', color: 'emerald' },
-    { label: 'Total Dividends', value: stats.totalDividends, prefix: 'Rp ', color: 'blue' },
-    { label: 'Portfolio Growth', value: stats.portfolioGrowth, suffix: '%', color: 'purple' },
-    { label: 'Average ROI', value: stats.avgROI, suffix: '%', color: 'orange' },
+    { label: 'Total Return', value: stats.totalReturns, prefix: 'Rp ', color: 'emerald' },
+    { label: 'Total Dividen', value: stats.totalDividends, prefix: 'Rp ', color: 'blue' },
+    { label: 'Pertumbuhan Portofolio', value: stats.portfolioGrowth, suffix: '%', color: 'purple' },
+    { label: 'Rata-rata ROI', value: stats.avgROI, suffix: '%', color: 'orange' },
   ];
 
   // Generate chart data for returns
@@ -67,10 +67,10 @@ const InvestorLaporan = () => {
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <div>
             <h2 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Investment Reports
+              Laporan Investasi
             </h2>
             <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-              Track your investment performance and returns
+              Pantau performa dan return investasi Anda
             </p>
           </div>
           
@@ -86,7 +86,7 @@ const InvestorLaporan = () => {
                   : 'bg-white border-gray-200 text-gray-800'
               } focus:border-emerald-500 outline-none`}
             />
-            <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>to</span>
+            <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>sampai</span>
             <input
               type="date"
               value={dateRange.end}
@@ -102,7 +102,7 @@ const InvestorLaporan = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Export
+              Ekspor
             </motion.button>
           </div>
         </motion.div>
@@ -172,9 +172,9 @@ const InvestorLaporan = () => {
               variants={itemVariants}
               className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 shadow-sm`}
             >
-              <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4`}>
-                Monthly Returns Trend
-              </h3>
+            <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4`}>
+              Tren Return Bulanan
+            </h3>
               
               <div className="h-56 overflow-x-auto">
                 <svg viewBox={`0 0 ${chartWidth} ${chartHeight + 40}`} className="w-full h-full min-w-[400px]">
@@ -255,9 +255,9 @@ const InvestorLaporan = () => {
               variants={itemVariants}
               className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl p-6 shadow-sm`}
             >
-              <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4`}>
-                Investment Performance
-              </h3>
+            <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-4`}>
+              Performa Investasi
+            </h3>
               
               <div className="space-y-4">
                 {investmentBreakdown.map((inv, index) => (
@@ -303,9 +303,9 @@ const InvestorLaporan = () => {
               <table className="w-full">
                 <thead className={isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}>
                   <tr>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Period</th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Total Investment</th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Returns</th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Periode</th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Total Investasi</th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Return</th>
                     <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>ROI</th>
                   </tr>
                 </thead>
@@ -348,9 +348,9 @@ const InvestorLaporan = () => {
               <table className="w-full">
                 <thead className={isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}>
                   <tr>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>UMKM Name</th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Invested</th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Returns</th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Nama UMKM</th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Investasi</th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Return</th>
                     <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>ROI</th>
                     <th className={`px-6 py-4 text-left text-xs font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase`}>Status</th>
                   </tr>
@@ -372,7 +372,7 @@ const InvestorLaporan = () => {
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           inv.status === 'excellent' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'
                         }`}>
-                          {inv.status === 'excellent' ? 'Excellent' : 'Good'}
+                          {inv.status === 'excellent' ? 'Sangat Baik' : 'Baik'}
                         </span>
                       </td>
                     </motion.tr>
